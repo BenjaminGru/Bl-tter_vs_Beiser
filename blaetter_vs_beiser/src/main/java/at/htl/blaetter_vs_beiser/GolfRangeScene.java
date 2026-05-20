@@ -37,7 +37,7 @@ public class GolfRangeScene extends SubScene {
     private Group worldGroup, uiGroup;
     private Rectangle powerBarFill, heightBarFill, directionIndicator;
     private Text feedbackText, coinDisplay, clubDisplay;
-    private Button nextTryButton, shopButton;
+    private Button nextTryButton, shopButton, exitButton;
     private Circle golfBall, ballShadow;
     private double startBallY;
 
@@ -118,6 +118,11 @@ public class GolfRangeScene extends SubScene {
         shopButton.setStyle("-fx-background-color: #ffd700; -fx-font-weight: bold;");
         shopButton.setOnAction(e -> openShopUI());
 
+        exitButton = new Button("VERLASSEN");
+        exitButton.setTranslateX(20); exitButton.setTranslateY(60);
+        exitButton.setStyle("-fx-background-color: #ff3333; -fx-text-fill: white; -fx-font-weight: bold;");
+        exitButton.setOnAction(e -> getSceneService().popSubScene());
+
         coinDisplay = new Text("0 C"); coinDisplay.setFont(Font.font("Monospaced", FontWeight.BOLD, 18));
         coinDisplay.setFill(Color.GOLD); coinDisplay.setTranslateX(getAppWidth() - 110); coinDisplay.setTranslateY(65);
 
@@ -132,7 +137,7 @@ public class GolfRangeScene extends SubScene {
         nextTryButton.setTranslateY(20); nextTryButton.setVisible(false); nextTryButton.setOnAction(e -> resetGame());
 
         setupBars();
-        uiGroup.getChildren().addAll(coinDisplay, clubDisplay, feedbackText, nextTryButton, shopButton);
+        uiGroup.getChildren().addAll(coinDisplay, clubDisplay, feedbackText, nextTryButton, shopButton, exitButton);
     }
 
     private void setupBars() {
@@ -315,14 +320,29 @@ public class GolfRangeScene extends SubScene {
     }
 
     private void closeShop(VBox layout) { uiGroup.getChildren().remove(layout); shopButton.setDisable(false); coinDisplay.setText(coins + " C"); }
-    private void resetBallPosition() { ballShadow.setTranslateX(getAppWidth()/2.0); ballShadow.setTranslateY(startBallY); golfBall.setTranslateX(ballShadow.getTranslateX()); golfBall.setTranslateY(ballShadow.getTranslateY()); golfBall.setVisible(true); }
+
+    private void resetBallPosition() {
+        ballShadow.setTranslateX(getAppWidth()/2.0);
+        ballShadow.setTranslateY(startBallY);
+        golfBall.setTranslateX(ballShadow.getTranslateX());
+        golfBall.setTranslateY(ballShadow.getTranslateY());
+        golfBall.setVisible(true);
+    }
 
     private void resetGame() {
         currentState = GameState.IDLE;
         ballVelocityX = 0; ballVelocityY = 0; ballHeight = 0; ballVerticalVelocity = 0;
         powerValue = 0; directionValue = 0; heightValue = 0;
-        buildWorld(); resetBallPosition();
-        nextTryButton.setVisible(false); shopButton.setVisible(true);
-        feedbackText.setText("NEXT ROUND"); feedbackText.setFill(Color.WHITE);
+
+        // Kamera-Position zurücksetzen, damit wir den Startpunkt wieder sehen
+        worldGroup.setTranslateY(0);
+
+        buildWorld();
+        resetBallPosition();
+
+        nextTryButton.setVisible(false);
+        shopButton.setVisible(true);
+        feedbackText.setText("NEXT ROUND");
+        feedbackText.setFill(Color.WHITE);
     }
 }
